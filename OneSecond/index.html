@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>我的一秒有多长？</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0 ">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='http://fonts.useso.com/css?family=Roboto+Slab' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+	body{ 
+	-moz-user-select:none  
+	}
+	p,h1,h2,h3,h4,h5,h6,div{
+	font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	}
+    .container{
+    padding: 15px;
+    }
+    .ctr{
+	max-width: 600px;
+    }
+    .section{
+    background-color: #ececec;
+    border-radius: 5px;
+    border: solid;
+    border-color: transparent;
+    }
+    .btn{
+	margin: 20px;
+	font-size: 20px;
+	width: 100px;
+	height: 100px;
+	font-weight: bold;
+	background-color: #ececec;
+    border-radius: 5px;
+    border: solid;
+    border-color: transparent;
+    }
+    .active{
+	    background-color: #bbb;
+    }
+    </style>
+</head>
+<body onselectstart="return false"> <!-- block long press selection 阻止长按选择文本 -->
+	<div class="container" align="center">
+    <div class="ctr" id="main">
+	    
+	    <h2>你的一秒有多长呢？</h2>
+	    <h5>按住下面的按钮，试试看你心中的一秒有多长。</h5>
+	    
+        <div id="result" class="section" style="opacity: 0;" align="center">
+	        <h3><span id="max_and_min"></span></h3>
+            <h2><span id="sec"></span><span id="sec_delta" style="font-size:12px;"></span></h2>
+            <h3><span id="review"></span></h3>
+        </div>
+        
+        <!-- ontouchstart="btnPressed();"onmousedown="btnPressed();" onmouseup="btnReleased();" onmouseout="btnReleased();" ontouchend="btnReleased();" ontouchcancel="btnReleased();" -->
+        <button id="btn" class="btn" >按住</button>
+        <h6>HTML+CSS+JavaScript(with jQuery Framework)+Google Web Fonts(Roboto Stab)</h6>
+        <h6>&copy; 2014-2015 SumiMakito</h6>
+    </div>
+    </div><script src="http://cdn.bootcss.com/jquery/2.1.3/jquery.min.js" type="text/javascript">
+</script><script type="text/javascript">
+	//阻止右键上下文菜单 主要用于移动设备
+	//block right click context menu (for mobile devices mainly)
+	$(document).ready(function(){  
+    $(document).bind("contextmenu",function(e){   
+          return false;   
+    });
+    });
+    
+    $(document).on('touchstart mousedown', '#btn', function(event){
+        event.stopPropagation();
+        event.preventDefault();
+        if(event.handled !== true) {
+	        $('#btn').addClass("active");
+	        btnPressed();
+            event.handled = true;
+        } else {
+            return false;
+        }
+});
+
+ $(document).on('touchend mouseup', '#btn', function(event){
+        event.stopPropagation();
+        event.preventDefault();
+        if(event.handled !== true) {
+	        $('#btn').removeClass("active");
+	        btnReleased();
+            event.handled = true;
+        } else {
+            return false;
+        }
+});
+
+    
+/*
+	    $("#btn").on('touchstart', function() {
+	    btnPressed();
+});
+
+$("#btn").on('touchend', function() {
+	btnReleased();
+});
+	
+	*/
+	var _t1,_t2,_best,_b_ctrl;
+	var _isInit = true;
+	function btnPressed(){
+		_t1 = Date.now();
+		console.log(_t1);
+	};
+	function btnReleased(){
+		_t2 = Date.now();
+		var delta = (_t2-_t1);
+		var delta_in_sec = delta/1000.0;
+		console.log("Duration="+delta+"ms "+delta_in_sec+"s");
+		$('#result').css("opacity", "100");
+		$('#sec').text(delta_in_sec+"秒");
+		$('#sec_delta').text("("+procDelta(delta_in_sec)+")");
+		$('#review').text(getReview(delta_in_sec));
+
+		if(absDelta(delta_in_sec)<_best||_isInit){
+			_best = absDelta(delta_in_sec).toFixed(3);
+			_b_ctrl = delta_in_sec < 1.0?-1:1;
+		}
+		var _t = _b_ctrl<0?"提前":"延后";
+		_t += _best + "秒";
+		if(!_isInit){
+			$('#max_and_min').text("最佳成绩: "+_t);
+		}else{
+			_isInit = false;
+		}
+	};
+	function procDelta(_d){
+		var _ = (_d - 1.0).toFixed(3);
+		return _<0?"提前"+abs(_)+"秒":"延后"+abs(_)+"秒";
+	}
+	function abs(_d){
+		return Math.abs(_d);
+	}
+	function absDelta(_d){
+		return Math.abs(_d - 1.0);
+	}
+	function getReview(_){
+		if(_<0.5){
+			return "太快了...";
+		}else if(_>=0.5&&_<0.85){
+			return "有点快啊";
+		}else if(_>=0.85&&_<0.95){
+			return "很接近了";
+		}else if(_>=0.95&&_<=0.98){
+			return "一点点!一点点!";
+		}else if(_>0.98&&_<=0.999){
+			return "手速不错嘛";
+		}else if(_==1){
+			wtf();
+		}else if(_>1&&_<1.55){
+			return "慢了慢了...";
+		}else if(_>=1.55&&_<1.95){
+			return "太慢了啊";
+		}else if(_>=1.95){
+			return "お...遅いよ！！バカ！";
+		}
+	}
+	function wtf(){
+		$('div').css("opacity", "0");
+		$('body').css("background-color", "#000");
+		alert("讨厌，你准确的按出了一秒钟的长度，请不要再来这里玩了，再见！（还不赶快截图炫耀一下？）")
+	}
+</script>
+</body>
+</html>
