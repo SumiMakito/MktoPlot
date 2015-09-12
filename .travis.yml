@@ -1,0 +1,7 @@
+language: c
+
+before_install:
+    - chmod +x ./run-build.sh
+    
+script:
+    ./run-build.sh
